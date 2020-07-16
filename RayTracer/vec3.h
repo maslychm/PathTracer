@@ -54,7 +54,7 @@ public:
 
 
 // Type aliases for vec4
-using point4 = vec3;	// 3D point + homogeneous
+using point3 = vec3;	// 3D point + homogeneous
 using color = vec3;		// RGBA point
 
 
