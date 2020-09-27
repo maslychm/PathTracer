@@ -54,6 +54,7 @@ int main()
 
 	// World
 
+	auto R = cos(pi / 4);
 	hittable_list world;
 
 	auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
@@ -69,7 +70,7 @@ int main()
 
 	// Camera
 
-	camera cam;
+	camera cam = camera(point3(-2,2,1), point3(0,0,-1),vec3(0,1,0), 35, aspect_ratio);
 
 	// Render
 
