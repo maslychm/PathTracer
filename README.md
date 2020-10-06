@@ -1,4 +1,4 @@
-# RayTracer
+# PathTracer
 Path tracer using C++
 
 ![part_one_final_scene](/images/image3.png)
