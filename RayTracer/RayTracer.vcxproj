@@ -162,6 +162,7 @@
     <ClInclude Include="hittable_list.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="moving_sphere.h" />
+    <ClInclude Include="perlin.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="rtcommon.h" />
     <ClInclude Include="sphere.h" />
