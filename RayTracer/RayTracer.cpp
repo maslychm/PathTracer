@@ -45,6 +45,14 @@ color ray_color(const ray& r, const hittable& world, int depth) {
 	return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
 
+hittable_list earth() {
+	auto earth_texture = make_shared<image_texture>("../resources/earthmap.jpg");
+	auto earth_surface = make_shared<lambertian>(earth_texture);
+	auto globe = make_shared<sphere>(point3(0, 0, 0), 2, earth_surface);
+
+	return hittable_list(globe);
+}
+
 hittable_list two_perlin_spheres() {
 	hittable_list objects;
 
@@ -117,9 +125,9 @@ hittable_list random_scene() {
 int main()
 {
 	const auto aspect_ratio = 16.0 / 9.0;
-	const int image_width = 600;
-	const int samples_per_pixel = 300;
-	const int max_depth = 40;
+	const int image_width = 400;
+	const int samples_per_pixel = 200;
+	const int max_depth = 50;
 
 	hittable_list world;
 	
@@ -129,6 +137,7 @@ int main()
 	auto aperture = 0.0;
 
 	switch (0) {
+	// default
 	case 1:
 		world = random_scene();
 		lookfrom = point3(13, 2, 3);
@@ -136,8 +145,8 @@ int main()
 		vfov = 20.0;
 		aperture = 0.1;
 		break;
-
-	default:
+	
+	// default
 	case 2:
 		world = two_spheres();
 		lookfrom = point3(13, 2, 3);
@@ -148,6 +157,14 @@ int main()
 	//default:
 	case 3:
 		world = two_perlin_spheres();
+		lookfrom = point3(13, 2, 3);
+		lookat = point3(0, 0, 0);
+		vfov = 20.0;
+		break;
+
+	default:
+	case 4:
+		world = earth();
 		lookfrom = point3(13, 2, 3);
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
