@@ -8,7 +8,7 @@ Path tracer implemented by following Peter Shirley's [Ray Tracing in One Weekend
 
 ### Features covered:  
 Book 1: 100%  
-Book 2:  80%  
+Book 2: 100%  
 Book 3:  0%  
 
 - Materials:
@@ -18,6 +18,7 @@ Book 3:  0%
     - Procedural Texture
     - Image Texure
     - Diffuse-light
+    - Isotropic
 - Hittables:
     - Sphere
     - Rectangle
