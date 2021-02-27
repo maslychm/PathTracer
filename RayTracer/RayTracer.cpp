@@ -263,6 +263,23 @@ hittable_list final_scene() {
 	return objects;
 }
 
+hittable_list avatar_scene()
+{
+	hittable_list objects;
+
+	auto avamat = make_shared<lambertian>(make_shared<image_texture>("../resources/untiLARGE.png"));
+	auto avasphere = make_shared<sphere>(point3(0, 0, 3.73), 1.8, avamat);
+	objects.add(make_shared<rotate_y>(avasphere, 0));
+
+	auto earthmat = make_shared<lambertian>(make_shared<image_texture>("../resources/earthmap.jpg"));
+	objects.add(make_shared<sphere>(point3(1.88, .4, 1.61), .18, earthmat));
+
+	auto light = make_shared<diffuse_light>(color(1.5, 1.5, 1));
+	objects.add(make_shared<xy_rect>(-20, 100, -40, 100, -20, light));
+
+	return objects;
+}
+
 int main()
 {
 	auto aspect_ratio = 16.0 / 9.0;
@@ -279,6 +296,19 @@ int main()
 	color background(0, 0, 0);
 
 	switch (0) {
+	default:
+	case -1:
+		image_width = 1200;
+		aspect_ratio = 1.0;
+		samples_per_pixel = 1000;
+		max_depth = 20;
+		world = avatar_scene();
+		background = color(0.0235, .0078, .0);
+		lookfrom = point3(2.46, 1.61, -3.98);
+		lookat = point3(0, 0, 3.73);
+		vfov = 60.0;
+		break;
+
 	// default
 	case 1:
 		world = random_scene();
@@ -349,7 +379,7 @@ int main()
 		vfov = 40.0;
 		break;
 
-	default:
+	// default:
 	case 8:
 		world = final_scene();
 		aspect_ratio = 1.0;
