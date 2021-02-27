@@ -8,7 +8,7 @@ Path tracer implemented by following Peter Shirley's [Ray Tracing in One Weekend
 
 ### Features covered:  
 Book 1: 100%  
-Book 2:  60%  
+Book 2:  80%  
 Book 3:  0%  
 
 - Materials:
@@ -16,9 +16,12 @@ Book 3:  0%
     - Metal
     - Dielectric
     - Procedural Texture
+    - Image Texure
+    - Diffuse-light
 - Hittables:
     - Sphere
-    - Axis Aligned Bounding Box
+    - Rectangle
+    - Box (collection of 6 rectangles)
 - Other:
     - Defocus Blur
     - Perlin noise (+ turbulence)
@@ -26,8 +29,12 @@ Book 3:  0%
 ### Some more screenshots
 ![perlin_noise_two_spheres](/images/perlin.png)  
 ![first_scene_checkered](/images/checker.png)  
+![cornell_scene](/images/cornell.png)  
 
 
 ### Future goals
 - Threading
 - Text-based scene editor
+
+## External Resources
+   For image loading (to use in textures) [stb](https://github.com/nothings/stb) was used.
