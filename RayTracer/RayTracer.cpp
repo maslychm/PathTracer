@@ -11,6 +11,11 @@
 #include "box.h"
 #include "constant_medium.h"
 
+// My additions
+#include "image.h"
+#include <thread>
+#include <chrono>
+
 #include <iostream>
 #include <ctime>
 
@@ -277,7 +282,115 @@ hittable_list avatar_scene()
 	auto light = make_shared<diffuse_light>(color(1.5, 1.5, 1));
 	objects.add(make_shared<xy_rect>(-20, 100, -40, 100, -20, light));
 
+
+	// "from us forward" z increases from us
+	// "right to left" x increases to left
+	// Boxes under the scene
+	auto ground = make_shared<lambertian>(color(0.0, 0.0, 60.0/255.0));
+
+	hittable_list boxes1;
+	hittable_list boxes2;
+	hittable_list boxes3;
+	hittable_list boxes4;
+	hittable_list boxes5;
+
+	boxes1.add(make_shared<box>(point3(-5, -6.25, 4), point3(-3, -4.25, 6), ground));
+	boxes1.add(make_shared<box>(point3(-3, -6.5, 4), point3(-1, -4.5, 6), ground));
+	boxes1.add(make_shared<box>(point3(-1, -6, 4), point3(1, -4, 6), ground));
+	boxes1.add(make_shared<box>(point3(1, -6.4, 4), point3(3, -4.4, 6), ground));
+	boxes1.add(make_shared<box>(point3(3, -6.1, 4), point3(5, -4.1, 6), ground));
+
+	boxes2.add(make_shared<box>(point3(-5, -6.1, 2), point3(-3, -4.1, 4), ground));
+	boxes2.add(make_shared<box>(point3(-3, -6, 2), point3(-1, -4, 4), ground));
+	boxes2.add(make_shared<box>(point3(-1, -6.2, 2), point3(1, -4.2, 4), ground));
+	boxes2.add(make_shared<box>(point3(1, -6.45, 2), point3(3, -4.45, 4), ground));
+	boxes2.add(make_shared<box>(point3(3, -6.32, 2), point3(5, -4.32, 4), ground));
+
+	boxes3.add(make_shared<box>(point3(-5, -6.26, 0), point3(-3, -4.26, 2), ground));
+	boxes3.add(make_shared<box>(point3(-3, -6.35, 0), point3(-1, -4.35, 2), ground));
+	boxes3.add(make_shared<box>(point3(-1, -6.1, 0), point3(1, -4.1, 2), ground));
+	boxes3.add(make_shared<box>(point3(1, -6.5, 0), point3(3, -4.5, 2), ground));
+	boxes3.add(make_shared<box>(point3(3, -6.21, 0), point3(5, -4.21, 2), ground));
+
+	boxes4.add(make_shared<box>(point3(-5, -6.3, 6), point3(-3, -4.3, 8), ground));
+	boxes4.add(make_shared<box>(point3(-3, -6.35, 6), point3(-1, -4.35, 8), ground));
+	boxes4.add(make_shared<box>(point3(-1, -6.1, 6), point3(1, -4.1, 8), ground));
+	boxes4.add(make_shared<box>(point3(1, -6.5, 6), point3(3, -4.5, 8), ground));
+	boxes4.add(make_shared<box>(point3(3, -6.21, 6), point3(5, -4.21, 8), ground));
+
+	boxes5.add(make_shared<box>(point3(-5, -6.1, 8), point3(-3, -4.1, 10), ground));
+	boxes5.add(make_shared<box>(point3(-3, -6, 8), point3(-1, -4, 10), ground));
+	boxes5.add(make_shared<box>(point3(-1, -6.2, 8), point3(1, -4.2, 10), ground));
+	boxes5.add(make_shared<box>(point3(1, -6.45, 8), point3(3, -4.45, 10), ground));
+	boxes5.add(make_shared<box>(point3(3, -6.32, 8), point3(5, -4.32, 10), ground));
+
+	objects.add(make_shared<bvh_node>(boxes1, 0, 1));
+	objects.add(make_shared<bvh_node>(boxes2, 0, 1));
+	objects.add(make_shared<bvh_node>(boxes3, 0, 1));
+	objects.add(make_shared<bvh_node>(boxes4, 0, 1));
+	objects.add(make_shared<bvh_node>(boxes5, 0, 1));
+
 	return objects;
+}
+
+hittable_list avatar_test()
+{
+	hittable_list objects;
+
+	auto avamat = make_shared<lambertian>(make_shared<image_texture>("../resources/untiLARGE.png"));
+	auto avasphere = make_shared<sphere>(point3(0, 0, 3.73), 1.8, avamat);
+	objects.add(make_shared<rotate_y>(avasphere, 0));
+
+	auto earthmat = make_shared<lambertian>(make_shared<image_texture>("../resources/earthmap.jpg"));
+	objects.add(make_shared<sphere>(point3(1.88, .4, 1.61), .18, earthmat));
+
+	auto light = make_shared<diffuse_light>(color(1.5, 1.5, 1));
+	objects.add(make_shared<xy_rect>(-20, 100, -40, 100, -20, light));
+
+	return objects;
+}
+
+color render_pixel(
+	camera& cam, 
+	color& background,
+	hittable_list& world,
+	const int max_depth,
+	const int samples_per_pixel, 
+	const int image_height, 
+	const int image_width,
+	const int j,
+	const int i) 
+{
+	color pixel_color(0, 0, 0);
+
+	for (int s = 0; s < samples_per_pixel; ++s) {
+		auto u = (i + random_double()) / (image_width - 1);
+		auto v = (j + random_double()) / (image_height - 1);
+		ray r = cam.get_ray(u, v);
+		pixel_color += ray_color(r, background, world, max_depth);
+	}
+
+	return pixel_color;
+}
+
+void render_tile(
+	camera& cam,
+	color& background,
+	hittable_list& world,
+	image& img,
+	const int max_depth,
+	const int samples_per_pixel,
+	const int tile_start,
+	const int tile_end,
+	const int image_height,
+	const int image_width)
+{
+	for (int j = tile_start; j < tile_end; j++) {
+		for (int i = 0; i < image_width; i++) {
+			color pixel_color = render_pixel(cam, background, world, max_depth, samples_per_pixel, image_height, image_width, j, i);
+			img.set_color(image_height - j - 1, i, pixel_color);
+		}
+	}
 }
 
 int main()
@@ -297,11 +410,23 @@ int main()
 
 	switch (0) {
 	default:
-	case -1:
-		image_width = 1200;
+	case -2:
+		image_width = 1000;
 		aspect_ratio = 1.0;
-		samples_per_pixel = 1000;
-		max_depth = 20;
+		samples_per_pixel = 200;
+		max_depth = 10;
+		world = avatar_test();
+		background = color(0.0235, .0078, .0);
+		lookfrom = point3(2.46, 1.61, -3.98);
+		lookat = point3(0, 0, 3.73);
+		vfov = 60.0;
+		break;
+
+	case -1:
+		image_width = 400;
+		aspect_ratio = 1.0;
+		samples_per_pixel = 10;
+		max_depth = 10;
 		world = avatar_scene();
 		background = color(0.0235, .0078, .0);
 		lookfrom = point3(2.46, 1.61, -3.98);
@@ -403,23 +528,53 @@ int main()
 	
 	// Render
 
-	std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
+	image img(image_width, image_height, samples_per_pixel);
+	
+	// Spawn threads and distribute work
+	// My machine has 8, leave 2 free to reduce context switching :)
+	int num_threads = 6;
+	std::vector<std::thread> threads;
+	int tile_height = static_cast<int>(image_height / num_threads);
 
-	for (int j = image_height - 1; j >= 0; --j) {
-		std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-		for (int i = 0; i < image_width; i++) {
-			color pixel_color(0, 0, 0);
-			for (int s = 0; s < samples_per_pixel; ++s) {
-				auto u = (i + random_double()) / (image_width - 1);
-				auto v = (j + random_double()) / (image_height - 1);
-				ray r = cam.get_ray(u, v);
-				pixel_color += ray_color(r, background, world, max_depth);
-			}
-			write_color(std::cout, pixel_color, samples_per_pixel);
-		}
+	std::cout << "Rendering on " << num_threads << " threads\n";
+	std::cout << "W: " << image_width << " H: " << image_height << "\n";
+	std::cout << "Samples per pixel: " << samples_per_pixel << std::endl;
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	for (int i = 0, lines_covered = 0; i < num_threads; i++)
+	{
+		int tile_start = tile_height * i;
+		int tile_end = tile_start + tile_height;
+
+		if (i == num_threads - 1)
+			tile_end = image_height;
+		
+		threads.push_back(
+			std::thread(
+			render_tile, 
+			std::ref(cam),
+			std::ref(background),
+			std::ref(world), 
+			std::ref(img), 
+			max_depth, 
+			samples_per_pixel, 
+			tile_start, 
+			tile_end, 
+			image_height, 
+			image_width)
+		);
 	}
 
-	std::cerr << "\nDone.\n";
+	for (auto& t : threads)
+		if (t.joinable())
+			t.join();
+
+	auto stop = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+	std::cout << "\nTook " << (double) duration.count() << " seconds to finish" << std::endl;
+
+	img.write_image("test.ppm");
 
 	return 0;
 }

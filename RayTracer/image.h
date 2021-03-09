@@ -1,7 +1,6 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <vector>
 #include <iostream>
 #include <fstream>
 
@@ -10,18 +9,29 @@
 
 class image {
 public:
-	image() = delete;
-
-	image(const unsigned int width, const unsigned int height, const unsigned int samples_per_pixel)
-		: width(width)
-		, height(height)
+	image(const unsigned int image_width, const unsigned int image_height, const unsigned int samples_per_pixel)
+		: width(image_width)
+		, height(image_height)
 		, samples_per_pixel(samples_per_pixel)
+		, num_pixels_total(width * height)
 	{
 		pixels = new color[width * height];
+		pixels_completed = 0;
 	}
 
 	~image() {
 		delete[] pixels;
+	}
+
+	void set_color(int y, int x, color c)
+	{
+		pixels[height * y + x] = c;
+		pixels_completed += 1;
+		
+		if (pixels_completed % 1000 == 0)
+		{
+			print_progress();
+		}
 	}
 
 	void write_image(std::string filename) {
@@ -37,8 +47,8 @@ public:
 			auto b = pixel_color.z();
 
 			// Divide the color by the number of samples and gamma correct for gamma=2.0
-			//auto scale = 1.0 / samples_so_far;
-			auto scale = 1.0;
+			auto scale = 1.0 / samples_per_pixel;
+			//auto scale = 1.0;
 			r = sqrt(scale * r);
 			g = sqrt(scale * g);
 			b = sqrt(scale * b);
@@ -52,9 +62,15 @@ public:
 		file.close();
 	}
 
+	void print_progress()
+	{
+		std::cerr << "\r" << (double) pixels_completed / num_pixels_total * 100 << "%" << "(" << pixels_completed << " of " << num_pixels_total << ")" << std::flush;
+	}
+
 public:
 	color *pixels;
-	const unsigned int height, width, samples_per_pixel;
+	const unsigned int height, width, samples_per_pixel, num_pixels_total;
+	int pixels_completed;
 };
 
 #endif // !IMAGE_H
