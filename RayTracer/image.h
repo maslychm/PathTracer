@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 
 #include "rtcommon.h"
 #include "color.h"
@@ -25,7 +26,7 @@ public:
 
 	void set_color(int y, int x, color c)
 	{
-		pixels[height * y + x] = c;
+		pixels[width * y + x] = c;
 		pixels_completed += 1;
 		
 		if (pixels_completed % 1000 == 0)
@@ -60,6 +61,8 @@ public:
 		}
 
 		file.close();
+
+		std::cout << "saved as " << filename << std::endl;
 	}
 
 	void print_progress()
