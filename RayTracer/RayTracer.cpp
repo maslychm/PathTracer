@@ -4,10 +4,11 @@
 #include "image.h"
 #include "scene.h"
 
-#include <thread>
 #include <chrono>
 #include <iostream>
 #include <ctime>
+
+#include "thread_pool.h"
 
 double hit_sphere(const point3& center, double radius, const ray& r) {
 	vec3 oc = r.origin() - center;
@@ -68,23 +69,20 @@ color render_pixel(
 	return pixel_color;
 }
 
-void render_tile(
+void render_line(
 	shared_ptr<camera> cam,
 	color& background,
 	hittable_list& world,
 	image& img,
 	const int max_depth,
 	const int samples_per_pixel,
-	const int tile_start,
-	const int tile_end,
+	const int line,
 	const int image_height,
 	const int image_width)
 {
-	for (int j = tile_start; j < tile_end; j++) {
-		for (int i = 0; i < image_width; i++) {
-			color pixel_color = render_pixel(cam, background, world, max_depth, samples_per_pixel, image_height, image_width, j, i);
-			img.set_color(image_height - j - 1, i, pixel_color);
-		}
+	for (int i = 0; i < image_width; i++) {
+		color pixel_color = render_pixel(cam, background, world, max_depth, samples_per_pixel, image_height, image_width, line, i);
+		img.set_color(image_height - line - 1, i, pixel_color);
 	}
 }
 
@@ -105,11 +103,12 @@ int main()
 	color background(0, 0, 0);
 
 	switch (0) {
+
+	default:
 	case -2:
 		render_scene = avatar_scene();
 		break;
 
-	default:
 	case -1:
 		render_scene = avatar_enhanced_scene();
 		break;
@@ -166,51 +165,42 @@ int main()
 	// Render
 	image img(image_width, image_height, samples_per_pixel);
 	
-	// Spawn threads and distribute work
-	// My machine has 8, leave 2 free to reduce context switching :)
-	int num_threads = 6;
-	std::vector<std::thread> threads;
-	int tile_height = static_cast<int>(image_height / num_threads);
-
+	int num_threads = std::thread::hardware_concurrency() - 2;
+	thread_pool pool(num_threads);
+	
 	std::cout << "Rendering on " << num_threads << " threads\n";
 	std::cout << "W: " << image_width << " H: " << image_height << "\n";
 	std::cout << "Samples per pixel: " << samples_per_pixel << std::endl;
 
 	auto start = std::chrono::high_resolution_clock::now();
 
-	for (int i = 0; i < num_threads; i++)
-	{
-		int tile_start = tile_height * i;
-		int tile_end = tile_start + tile_height;
-
-		if (i == num_threads - 1)
-			tile_end = image_height;
-		
-		threads.push_back(
-			std::thread(
-			render_tile, 
-			cam,
-			std::ref(background),
-			std::ref(world), 
-			std::ref(img), 
-			max_depth, 
-			samples_per_pixel, 
-			tile_start, 
-			tile_end, 
-			image_height, 
-			image_width)
+	// split by lines
+	std::vector<std::future<void>> results;
+	for (int j = 0; j < image_height; j++) {
+		results.emplace_back(
+			pool.enqueue([&cam, &background, &world, &img, max_depth, samples_per_pixel, j, image_height, image_width] {
+			render_line(
+				cam,
+				background,
+				world,
+				img,
+				max_depth,
+				samples_per_pixel,
+				j,
+				image_height,
+				image_width);
+			})
 		);
 	}
 
-	for (auto& t : threads)
-		if (t.joinable())
-			t.join();
+	for (auto&& result : results)
+		result.get();
 
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-	std::cout << "\nTook " << (double) duration.count() << " seconds to finish" << std::endl;
+	std::cout << "\nTook " << (double) duration.count() << " seconds to finish\n" << std::endl;
 
-	img.write_image("test.ppm");
+	img.write_image("testing.ppm");
 
 	system("pause");
 

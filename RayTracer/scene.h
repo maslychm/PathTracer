@@ -86,7 +86,7 @@ public:
 		auto earthmat = make_shared<lambertian>(make_shared<image_texture>("../resources/earthmap.jpg"));
 		objects.add(make_shared<sphere>(point3(1.88, .4, 1.61), .18, earthmat));
 
-		auto light = make_shared<diffuse_light>(color(1.5, 1.5, 1));
+		auto light = make_shared<diffuse_light>(color(1.2, 1.2, .8));
 		objects.add(make_shared<xy_rect>(-20, 100, -40, 100, -20, light));
 
 		world = objects;
@@ -96,9 +96,9 @@ public:
 	}
 
 	void set_custom_image_settings() override {
-		image_width = 500;
+		image_width = 2000;
 		aspect_ratio = 1.0;
-		samples_per_pixel = 50;
+		samples_per_pixel = 3000;
 		max_depth = 10;
 		background = color(0.0235, .0078, .0);
 		lookfrom = point3(2.46, 1.61, -3.98);
