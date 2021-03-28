@@ -93,13 +93,13 @@ public:
 		color background(0, 0, 0);
 
 		// Create the scene
-		render_scene = avatar_scene();
+		//render_scene = avatar_scene();
 		//render_scene = avatar_enhanced_scene();
 		//render_scene = random_scene();
 		//render_scene = two_perlin_spheres_scene();
 		//render_scene = earth_scene();
 		//render_scene = simple_light_scene();
-		//render_scene = cornell_box_scene();
+		render_scene = cornell_box_scene();
 		//render_scene = cornell_smoke_scene();
 		//render_scene = final_scene();
 
@@ -127,33 +127,28 @@ public:
 		// Render
 		img = new image(image_width, image_height, samples_per_pixel);
 
-		int num_threads = std::thread::hardware_concurrency() - 2;
+		int num_threads = std::thread::hardware_concurrency() - 1;
 		thread_pool pool(num_threads);
 
 		std::cout << "Rendering on " << num_threads << " threads\n";
 		std::cout << "W: " << image_width << " H: " << image_height << "\n";
 		std::cout << "Samples per pixel: " << samples_per_pixel << std::endl;
 
-		// Cheat, because can't pass a field pointer to lambda
-		image* img2 = img;
-
 		// split by lines
 		std::vector<std::future<void>> results;
 		for (int j = 0; j < image_height; j++) {
 			results.emplace_back(
-				pool.enqueue([&cam, &background, &world, img2, max_depth, samples_per_pixel, j, image_height, image_width]{
-					render_line(
-						cam,
-						background,
-						world,
-						img2,
-						max_depth,
-						samples_per_pixel,
-						j,
-						image_height,
-						image_width);
-					})
-			);
+				pool.enqueue(
+					render_line,
+					cam,
+					background,
+					world,
+					img,
+					max_depth,
+					samples_per_pixel,
+					j,
+					image_height,
+					image_width));
 		}
 
 		for (auto&& result : results)
@@ -212,7 +207,7 @@ int main()
 	renderer rend = renderer();
 	rend.start_rendering();
 	
-	std::cout << "/// enter p to generate a preview\n" << std::endl;
+	std::cout << "/// enter p to generate a preview" << std::endl;
 	std::cout << "/// enter s to display rendering status" << std::endl;
 	std::cout << "/// enter t to estimate the remaining time" << std::endl;
 
