@@ -79,11 +79,11 @@ public:
 	{
 		hittable_list objects;
 
-		auto avamat = make_shared<lambertian>(make_shared<image_texture>("../resources/untiLARGE.png"));
+		auto avamat = make_shared<lambertian>(make_shared<image_texture>("../../resources/untiLARGE.png"));
 		auto avasphere = make_shared<sphere>(point3(0, 0, 3.73), 1.8, avamat);
 		objects.add(make_shared<rotate_y>(avasphere, 0));
 
-		auto earthmat = make_shared<lambertian>(make_shared<image_texture>("../resources/earthmap.jpg"));
+		auto earthmat = make_shared<lambertian>(make_shared<image_texture>("../../resources/earthmap.jpg"));
 		objects.add(make_shared<sphere>(point3(1.88, .4, 1.61), .18, earthmat));
 
 		auto light = make_shared<diffuse_light>(color(1.2, 1.2, .8));
@@ -96,9 +96,9 @@ public:
 	}
 
 	void set_custom_image_settings() override {
-		image_width = 2000;
+		image_width = 800;
 		aspect_ratio = 1.0;
-		samples_per_pixel = 3000;
+		samples_per_pixel = 100;
 		max_depth = 10;
 		background = color(0.0235, .0078, .0);
 		lookfrom = point3(2.46, 1.61, -3.98);
@@ -472,7 +472,7 @@ public:
 		boundary = make_shared<sphere>(point3(0, 0, 0), 5000, make_shared<dielectric>(1.5));
 		objects.add(make_shared<constant_medium>(boundary, .0001, color(1, 1, 1)));
 
-		auto emat = make_shared<lambertian>(make_shared<image_texture>("../resources/earthmap.jpg"));
+		auto emat = make_shared<lambertian>(make_shared<image_texture>("../../resources/earthmap.jpg"));
 		objects.add(make_shared<sphere>(point3(400, 200, 400), 100, emat));
 		auto pertext = make_shared<noise_texture>(0.1);
 		objects.add(make_shared<sphere>(point3(220, 280, 300), 80, make_shared<lambertian>(pertext)));
@@ -499,8 +499,8 @@ public:
 
 	void set_custom_image_settings() override {
 		aspect_ratio = 1.0;
-		image_width = 800;
-		samples_per_pixel = 10000;
+		image_width = 600;
+		samples_per_pixel = 5000;
 		background = color(0, 0, 0);
 		lookfrom = point3(478, 278, -600);
 		lookat = point3(278, 278, 0);

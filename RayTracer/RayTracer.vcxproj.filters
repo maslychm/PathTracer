@@ -71,9 +71,6 @@
     <ClInclude Include="external\stb_image.h">
       <Filter>Header Files\external</Filter>
     </ClInclude>
-    <ClInclude Include="rt_stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="aarect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -89,8 +86,11 @@
     <ClInclude Include="scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="thread_pool.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="external\thread_pool.h">
+      <Filter>Header Files\external</Filter>
+    </ClInclude>
+    <ClInclude Include="rt_stb_image.h">
+      <Filter>Header Files\external</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
