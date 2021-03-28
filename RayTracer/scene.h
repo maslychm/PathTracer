@@ -79,11 +79,11 @@ public:
 	{
 		hittable_list objects;
 
-		auto avamat = make_shared<lambertian>(make_shared<image_texture>("../../resources/untiLARGE.png"));
+		auto avamat = make_shared<lambertian>(make_shared<image_texture>("../resources/untiLARGE.png"));
 		auto avasphere = make_shared<sphere>(point3(0, 0, 3.73), 1.8, avamat);
 		objects.add(make_shared<rotate_y>(avasphere, 0));
 
-		auto earthmat = make_shared<lambertian>(make_shared<image_texture>("../../resources/earthmap.jpg"));
+		auto earthmat = make_shared<lambertian>(make_shared<image_texture>("../resources/earthmap.jpg"));
 		objects.add(make_shared<sphere>(point3(1.88, .4, 1.61), .18, earthmat));
 
 		auto light = make_shared<diffuse_light>(color(1.2, 1.2, .8));

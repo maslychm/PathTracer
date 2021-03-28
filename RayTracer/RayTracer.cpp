@@ -7,6 +7,7 @@
 #include <chrono>
 #include <iostream>
 #include <ctime>
+#include <string>
 
 #include "external/thread_pool.h"
 
@@ -55,8 +56,7 @@ color render_pixel(
 	const int image_height, 
 	const int image_width,
 	const int j,
-	const int i) 
-{
+	const int i) {
 	color pixel_color(0, 0, 0);
 
 	for (int s = 0; s < samples_per_pixel; ++s) {
@@ -78,8 +78,7 @@ void render_line(
 	const int samples_per_pixel,
 	const int line,
 	const int image_height,
-	const int image_width)
-{
+	const int image_width) {
 	for (int i = 0; i < image_width; i++) {
 		color pixel_color = render_pixel(cam, background, world, max_depth, samples_per_pixel, image_height, image_width, line, i);
 		img->set_color(image_height - line - 1, i, pixel_color);
@@ -88,16 +87,10 @@ void render_line(
 
 
 class renderer {
-	/**
-	* Quick workaround for taking input from main
-	*/
 public: 
 	renderer() {};
 
-	
-
-	void start() 
-	{
+	void render() {
 		finished = false;
 
 		double aspect_ratio = 16.0 / 9.0;
@@ -123,7 +116,6 @@ public:
 		//render_scene = simple_light_scene();
 		//render_scene = cornell_box_scene();
 		//render_scene = cornell_smoke_scene();
-
 		//render_scene = final_scene();
 
 		// Get the scene's objects
@@ -131,7 +123,7 @@ public:
 
 		// Get the scene's custom settings
 		image_width = render_scene.image_width;
-		image_width = 200;
+		image_width = 300;
 		aspect_ratio = render_scene.aspect_ratio;
 		samples_per_pixel = render_scene.samples_per_pixel;
 		max_depth = render_scene.max_depth;
@@ -189,9 +181,21 @@ public:
 		return;
 	}
 
-	void starting()
+	void generate_preview() 
+	{ 
+		img->write_image("preview.ppm");
+	}
+
+	// Separate rendering thread to capture input in main
+	void start_rendering() 
+	{ 
+		render_thread = std::thread([this] { render(); } ); 
+	}
+
+	// Finish by joining the thread
+	void finish_rendering() 
 	{
-		render_thread = std::thread(&renderer::start, renderer());
+		render_thread.join(); 
 	}
 
 private:
@@ -208,12 +212,19 @@ int main()
 	auto start = std::chrono::high_resolution_clock::now();
 
 	renderer rend = renderer();
-	rend.start();
+	rend.start_rendering();
 
-	while (!rend.finished)
-	{
-		std::cout << "HELLO";
+	// Capture input until rendering is done
+	std::cout << "/// enter p to generate a preview\n" << std::endl;
+	std::string inp;
+	while (!rend.finished) {
+		std::cin >> inp;
+		if (inp.find("p") != std::string::npos && !rend.finished) {
+			rend.generate_preview();
+		}
 	}
+
+	rend.finish_rendering();
 
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);

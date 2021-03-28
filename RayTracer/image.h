@@ -36,6 +36,7 @@ public:
 	}
 
 	void write_image(std::string filename) {
+
 		std::ofstream file;
 		file.open(filename);
 
@@ -62,7 +63,7 @@ public:
 
 		file.close();
 
-		std::cout << "saved as " << filename << std::endl;
+		std::cout << "\nsaved as " << filename << std::endl;
 	}
 
 	void print_progress()
