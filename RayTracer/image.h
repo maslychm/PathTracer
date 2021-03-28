@@ -30,13 +30,10 @@ public:
 		pixels_completed += 1;
 		
 		if (pixels_completed % 1000 == 0)
-		{
 			print_progress();
-		}
 	}
 
 	void write_image(std::string filename) {
-
 		std::ofstream file;
 		file.open(filename);
 
@@ -66,9 +63,15 @@ public:
 		std::cout << "\nsaved as " << filename << std::endl;
 	}
 
+	float approx_completion()
+	{
+		return (float)pixels_completed / num_pixels_total;
+	}
+
+
 	void print_progress()
 	{
-		std::cerr << "\r" << (double) pixels_completed / num_pixels_total * 100 << "%" << "(" << pixels_completed << " of " << num_pixels_total << ")" << std::flush;
+		std::cerr << "\r" << approx_completion() * 100 << "%" << "(" << pixels_completed << " of " << num_pixels_total << ")" << std::flush;
 	}
 
 public:

@@ -11,21 +11,6 @@
 
 #include "external/thread_pool.h"
 
-double hit_sphere(const point3& center, double radius, const ray& r) {
-	vec3 oc = r.origin() - center;
-	auto a = r.direction().length_squared();
-	auto half_b = dot(oc, r.direction());
-	auto c = oc.length_squared() - radius * radius;
-	auto discriminant = half_b * half_b - a * c;
-
-	if (discriminant < 0) {
-		return -1.0;
-	}
-	else {
-		return (-half_b - sqrt(discriminant)) / a;
-	}
-}
-
 color ray_color(const ray& r, const color& background, const hittable& world, int depth) {
 	hit_record rec;
 
@@ -123,7 +108,6 @@ public:
 
 		// Get the scene's custom settings
 		image_width = render_scene.image_width;
-		image_width = 300;
 		aspect_ratio = render_scene.aspect_ratio;
 		samples_per_pixel = render_scene.samples_per_pixel;
 		max_depth = render_scene.max_depth;
@@ -150,6 +134,7 @@ public:
 		std::cout << "W: " << image_width << " H: " << image_height << "\n";
 		std::cout << "Samples per pixel: " << samples_per_pixel << std::endl;
 
+		// Cheat, because can't pass a field pointer to lambda
 		image* img2 = img;
 
 		// split by lines
@@ -174,16 +159,29 @@ public:
 		for (auto&& result : results)
 			result.get();
 		
-		img->write_image("testing.ppm");
-
+		save_image();
 		finished = true;
-
 		return;
 	}
 
-	void generate_preview() 
+	float approx_completion_ratio()
+	{
+		return img->approx_completion();
+	}
+
+	void save_image()
+	{
+		img->write_image("final.ppm");
+	}
+
+	void generate_preview()
 	{ 
 		img->write_image("preview.ppm");
+	}
+
+	void display_status()
+	{
+		img->print_progress();
 	}
 
 	// Separate rendering thread to capture input in main
@@ -213,14 +211,36 @@ int main()
 
 	renderer rend = renderer();
 	rend.start_rendering();
+	
+	std::cout << "/// enter p to generate a preview\n" << std::endl;
+	std::cout << "/// enter s to display rendering status" << std::endl;
+	std::cout << "/// enter t to estimate the remaining time" << std::endl;
 
 	// Capture input until rendering is done
-	std::cout << "/// enter p to generate a preview\n" << std::endl;
 	std::string inp;
 	while (!rend.finished) {
 		std::cin >> inp;
-		if (inp.find("p") != std::string::npos && !rend.finished) {
+
+		if (rend.finished)
+			break;
+
+		if (inp.find("p") != std::string::npos)
+		{
 			rend.generate_preview();
+		}
+		else if (inp.find("s") != std::string::npos)
+		{
+			rend.display_status();
+		}
+		else if (inp.find("t") != std::string::npos)
+		{
+			// Estimate time remaining
+			auto now = std::chrono::high_resolution_clock::now();
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+			float time_remaining = (float) duration.count() / rend.approx_completion_ratio() 
+				/ 1000 /*ms to sec*/
+				/ 60; /*sec to min*/
+			std::cout << "time remaining: " << time_remaining << " minutes" << std::endl;
 		}
 	}
 
