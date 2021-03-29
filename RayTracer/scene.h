@@ -36,13 +36,13 @@ public:
 	// Image settings.
 	int image_width;
 	double aspect_ratio;
-	
+
 	// number of light bounces
 	int max_depth;
 
 	// Random rays per pixel
 	int samples_per_pixel;
-	
+
 	// Background color
 	color background;
 
@@ -54,7 +54,7 @@ public:
 
 	// Vector up (usually 0,1,0)
 	vec3 vup;
-	
+
 	// Vertical field of view
 	double vfov;
 
@@ -63,7 +63,7 @@ public:
 
 	// Where defocus blur begins
 	double dist_to_focus;
-	
+
 	// Begin and end time of the simulation
 	double t0;
 	double t1;
@@ -71,7 +71,6 @@ public:
 	// Objects in this scene.
 	hittable_list world;
 };
-
 
 class avatar_scene : public scene {
 public:
@@ -107,7 +106,6 @@ public:
 	}
 };
 
-
 class avatar_enhanced_scene : public scene {
 public:
 	avatar_enhanced_scene()
@@ -123,7 +121,6 @@ public:
 
 		auto light = make_shared<diffuse_light>(color(1.5, 1.5, 1));
 		objects.add(make_shared<xy_rect>(-20, 100, -40, 100, -20, light));
-
 
 		// "from us forward" z increases from us
 		// "right to left" x increases to left
@@ -190,7 +187,6 @@ public:
 	}
 };
 
-
 class earth_scene : public scene {
 public:
 	earth_scene() {
@@ -211,7 +207,6 @@ public:
 		vfov = 20.0;
 	}
 };
-
 
 class two_perlin_spheres_scene : public scene {
 public:
@@ -235,7 +230,6 @@ public:
 		vfov = 20.0;
 	}
 };
-
 
 class random_scene : public scene {
 public:
@@ -289,7 +283,7 @@ public:
 		objects.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
 		world = objects;
-		
+
 		set_image_defaults();
 		set_custom_image_settings();
 	}
@@ -307,7 +301,6 @@ public:
 	}
 };
 
-
 class simple_light_scene : public scene {
 public:
 	simple_light_scene() {
@@ -323,7 +316,7 @@ public:
 		objects.add(make_shared<sphere>(point3(0, 7, 0), 2, difflight));
 
 		world = objects;
-		
+
 		set_image_defaults();
 		set_custom_image_settings();
 	}
@@ -336,7 +329,6 @@ public:
 		vfov = 20.0;
 	}
 };
-
 
 class cornell_box_scene : public scene {
 public:
@@ -382,9 +374,8 @@ public:
 	}
 };
 
-
 class cornell_smoke_scene : public scene {
-public :
+public:
 	cornell_smoke_scene() {
 		hittable_list objects;
 
@@ -426,7 +417,6 @@ public :
 		vfov = 40.0;
 	}
 };
-
 
 class final_scene : public scene {
 public:
@@ -507,6 +497,5 @@ public:
 		vfov = 40.0;
 	}
 };
-
 
 #endif // !SCENE_H

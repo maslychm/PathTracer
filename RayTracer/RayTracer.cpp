@@ -33,12 +33,12 @@ color ray_color(const ray& r, const color& background, const hittable& world, in
 }
 
 color render_pixel(
-	shared_ptr<camera> cam, 
+	shared_ptr<camera> cam,
 	color& background,
 	hittable_list& world,
 	const int max_depth,
-	const int samples_per_pixel, 
-	const int image_height, 
+	const int samples_per_pixel,
+	const int image_height,
 	const int image_width,
 	const int j,
 	const int i) {
@@ -70,9 +70,8 @@ void render_line(
 	}
 }
 
-
 class renderer {
-public: 
+public:
 	renderer() {};
 
 	void render() {
@@ -93,13 +92,13 @@ public:
 		color background(0, 0, 0);
 
 		// Create the scene
-		//render_scene = avatar_scene();
+		render_scene = avatar_scene();
 		//render_scene = avatar_enhanced_scene();
 		//render_scene = random_scene();
 		//render_scene = two_perlin_spheres_scene();
 		//render_scene = earth_scene();
 		//render_scene = simple_light_scene();
-		render_scene = cornell_box_scene();
+		//render_scene = cornell_box_scene();
 		//render_scene = cornell_smoke_scene();
 		//render_scene = final_scene();
 
@@ -153,7 +152,7 @@ public:
 
 		for (auto&& result : results)
 			result.get();
-		
+
 		save_image();
 		finished = true;
 		return;
@@ -170,7 +169,7 @@ public:
 	}
 
 	void generate_preview()
-	{ 
+	{
 		img->write_image("preview.ppm");
 	}
 
@@ -180,15 +179,15 @@ public:
 	}
 
 	// Separate rendering thread to capture input in main
-	void start_rendering() 
-	{ 
-		render_thread = std::thread([this] { render(); } ); 
+	void start_rendering()
+	{
+		render_thread = std::thread([this] { render(); });
 	}
 
 	// Finish by joining the thread
-	void finish_rendering() 
+	void finish_rendering()
 	{
-		render_thread.join(); 
+		render_thread.join();
 	}
 
 private:
@@ -199,14 +198,13 @@ public:
 	bool finished;
 };
 
-
 int main()
 {
 	auto start = std::chrono::high_resolution_clock::now();
 
 	renderer rend = renderer();
 	rend.start_rendering();
-	
+
 	std::cout << "/// enter p to generate a preview" << std::endl;
 	std::cout << "/// enter s to display rendering status" << std::endl;
 	std::cout << "/// enter t to estimate the remaining time" << std::endl;
@@ -232,10 +230,9 @@ int main()
 			// Estimate time remaining
 			auto now = std::chrono::high_resolution_clock::now();
 			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
-			float time_remaining = (float) duration.count() / rend.approx_completion_ratio() 
-				/ 1000 /*ms to sec*/
-				/ 60; /*sec to min*/
-			std::cout << "time remaining: " << time_remaining << " minutes" << std::endl;
+			double lasted = (double)duration.count() / 1000 / 60;
+			double total_time = lasted / rend.approx_completion_ratio();
+			std::cout << "time remaining: " << total_time - lasted << " minutes" << std::endl;
 		}
 	}
 
