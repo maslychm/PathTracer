@@ -1,30 +1,25 @@
 # PathTracer
 Path tracer using C++
 
-![part_one_final_scene](/images/image3.png)
+![gallery](/images/thumbs.png)
 
 ## What is this
 Lighting Path tracer implemented by following Peter Shirley's [Ray Tracing in One Weekend Book Series](https://raytracing.github.io/).  
 
-Originally I wanted to use this code to render a high resolution avatar similar to one I made in Unity some time ago. It is included as the last screenshot.  
+Originally I wanted to use this code to render a high resolution avatar similar to one I made in Unity some time ago, but it turned out that I had great interest in the inner workings of a Ray Tracer, so ended up following a book and making my changes to the code. The avatar is one of the scenes in the image above.  
+This repository is always work in progress. Sometimes when I have free time, I sit down to continue following the book and adding new features 🙂.
 
-The repository is work in progress. Sometimes when I have free time, I sit down to continue following the book and adding new features 🙂.
+## Features
 
-So far my custom changes to the base code include: 
+Custom changes: 
 - adding `scene` class that contains initialization of `hittalbe` objects and sets appropriate image format depending on scene 
 - thread pooling: minimize downtime by rendering lines concurrently
+- during render, enter p to generate preview
 
-
-### Features
-
+From the book:
 - Materials:
-    - Lambertian
-    - Metal
-    - Dielectric
-    - Procedural Texture
-    - Image Texure
-    - Diffuse-light
-    - Isotropic
+    - Lambertian, Metal, Dielectric, Diffuse-light, Isotropic
+    - Textures: procedural, image mapping
 - Hittables:
     - Sphere
     - Rectangle
@@ -33,17 +28,6 @@ So far my custom changes to the base code include:
     - Defocus Blur
     - Perlin noise (+ turbulence)
     - Threading
-
-### Some more screenshots
-![perlin_noise_two_spheres](/images/perlin.png)  
-![first_scene_checkered](/images/checker.png)  
-![cornell_scene](/images/cornell.png)  
-![mighty_avatar](/images/mighty.jpg)
-
-
-### Future plans
-
-The render threads have no downtime, so spawning more than the above reduces total performance, and I found that on my Windows 8-core machine 6 threads give the best performance. I'm interested in plotting the exact render times depending on number of threads in the future.
 
 ## External Resources
    For image loading (to use in textures) [stb](https://github.com/nothings/stb) was used.  
